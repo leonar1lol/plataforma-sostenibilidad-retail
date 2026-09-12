@@ -3,7 +3,7 @@ import { LayoutDashboard, UserCheck, LogOut } from 'lucide-react';
 
 const CabeceraNavegacion = ({ entornoActual, alCambiarEntorno, sesionCorporativa, alCerrarSesionCorporativa }) => {
   return (
-    <header className="superficie-cristal sticky top-0 z-50">
+    <header className="superficie-cristal sticky top-0 z-30">
       <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-md-token bg-plataformaCorporativo flex items-center justify-center text-white text-xs font-semibold">
