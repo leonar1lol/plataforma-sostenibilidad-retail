@@ -1,3 +1,4 @@
+import { consultarBaseDatos } from '../configuracion/baseDatos.js';
 import { enviarCodigoAccesoOtp } from '../servicios/servicioCorreo.js';
 
 const almacenesCodigosMemoria = new Map();
@@ -57,28 +58,72 @@ export const validarCodigoAcceso = async (peticion, respuesta) => {
   });
 };
 
+export const obtenerListaProveedores = async (peticion, respuesta) => {
+  try {
+    const consulta = `
+      SELECT 
+        p.id_proveedor AS id,
+        p.ruc,
+        p.razon_social AS "razonSocial",
+        p.representante,
+        p.correo,
+        p.tipo,
+        p.es_critico AS "esCritico",
+        COALESCE(u.nombre, 'Sin Asignar') AS unidad,
+        COALESCE(i.nombre, 'Sin Asignar') AS industria
+      FROM proveedor p
+      LEFT JOIN unidad_negocio u ON p.fk_id_unidad = u.id_unidad
+      LEFT JOIN industria i ON p.fk_id_industria = i.id_industria
+      ORDER BY p.id_proveedor ASC;
+    `;
+    const resultado = await consultarBaseDatos(consulta);
+    return respuesta.status(200).json({
+      exito: true,
+      proveedores: resultado.rows
+    });
+  } catch (error) {
+    return respuesta.status(500).json({ exito: false, mensaje: 'Error al consultar proveedores en base de datos.' });
+  }
+};
+
+export const incorporarNuevoProveedor = async (peticion, respuesta) => {
+  const { ruc, razonSocial, representante, correo, idUnidad, idIndustria, esCritico } = peticion.body;
+
+  if (!ruc || !razonSocial || !representante || !correo) {
+    return respuesta.status(400).json({ exito: false, mensaje: 'Faltan campos obligatorios para el registro.' });
+  }
+
+  try {
+    const tipo = esCritico ? 'Crítico' : 'Regular';
+    const consulta = `
+      INSERT INTO proveedor (ruc, razon_social, representante, correo, tipo, es_critico, fk_id_unidad, fk_id_industria)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING id_proveedor AS id, ruc, razon_social AS "razonSocial", representante, correo, tipo, es_critico AS "esCritico";
+    `;
+    const valores = [ruc, razonSocial, representante, correo, tipo, !!esCritico, idUnidad || 1, idIndustria || 1];
+    const resultado = await consultarBaseDatos(consulta, valores);
+
+    return respuesta.status(201).json({
+      exito: true,
+      mensaje: 'Proveedor incorporado con éxito en la base de datos.',
+      proveedor: resultado.rows[0]
+    });
+  } catch (error) {
+    return respuesta.status(500).json({ exito: false, mensaje: 'Error al insertar proveedor en base de datos.' });
+  }
+};
+
 export const obtenerDatosMaestros = async (peticion, respuesta) => {
-  const industrias = [
-    { id_industria: 1, codigo: 'IND-ALIM', nombre: 'Alimentos y Bebidas Envasados' },
-    { id_industria: 2, codigo: 'IND-LOG', nombre: 'Transporte, Almacén y Logística' },
-    { id_industria: 3, codigo: 'IND-TEXT', nombre: 'Textil, Confecciones y Calzado' },
-    { id_industria: 4, codigo: 'IND-SERV', nombre: 'Servicios Generales y Mantenimiento' },
-    { id_industria: 5, codigo: 'IND-FARM', nombre: 'Productos Farmacéuticos y Cuidado Personal' }
-  ];
+  try {
+    const resIndustrias = await consultarBaseDatos('SELECT id_industria, codigo, nombre FROM industria ORDER BY id_industria ASC;');
+    const resUnidades = await consultarBaseDatos('SELECT id_unidad, nombre, gerente FROM unidad_negocio ORDER BY id_unidad ASC;');
 
-  const unidadesNegocio = [
-    { id_unidad: 1, nombre: 'Supermercados Peruanos' },
-    { id_unidad: 2, nombre: 'Promart' },
-    { id_unidad: 3, nombre: 'Oechsle' },
-    { id_unidad: 4, nombre: 'Real Plaza' },
-    { id_unidad: 5, nombre: 'Farmacias Peruanas' },
-    { id_unidad: 6, nombre: 'SIP' },
-    { id_unidad: 7, nombre: 'Intercorp Retail Sucursal China' }
-  ];
-
-  return respuesta.status(200).json({
-    exito: true,
-    industrias,
-    unidadesNegocio
-  });
+    return respuesta.status(200).json({
+      exito: true,
+      industrias: resIndustrias.rows,
+      unidadesNegocio: resUnidades.rows
+    });
+  } catch (error) {
+    return respuesta.status(500).json({ exito: false, mensaje: 'Error al consultar datos maestros.' });
+  }
 };

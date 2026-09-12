@@ -1,13 +1,17 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
 import pkg from 'pg';
 import dotenv from 'dotenv';
 
-dotenv.config();
+const rutaArchivoActual = fileURLToPath(import.meta.url);
+const directorioActual = path.dirname(rutaArchivoActual);
+dotenv.config({ path: path.resolve(directorioActual, '../../.env') });
 
 const { Pool } = pkg;
 
 export const grupoConexiones = new Pool({
   connectionString: process.env.URL_BASE_DATOS,
-  ssl: process.env.MODO_PRODUCCION === 'true' ? { rejectUnauthorized: false } : false
+  ssl: { rejectUnauthorized: false }
 });
 
 export const consultarBaseDatos = (textoConsulta, parametros) => {
