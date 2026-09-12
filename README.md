@@ -22,13 +22,42 @@
 ---
 
 ## 📌 Descripción del Proyecto
-Plataforma web centralizada orientada a sustituir la circulación y consolidación manual de archivos Excel por un entorno automatizado para la evaluación, calificación y retroalimentación de la sostenibilidad de proveedores de las siete unidades de negocio de Intercorp Retail.
+Plataforma web centralizada orientada a sustituir la circulación y consolidación manual de archivos Excel por un entorno automatizado para la evaluación, calificación y retroalimentación de la sostenibilidad de proveedores de las siete unidades de negocio de Intercorp Retail:
+- Supermercados Peruanos
+- Promart
+- Oechsle
+- Real Plaza
+- Farmacias Peruanas
+- SIP
+- Intercorp Retail Sucursal China
 
 ---
 
 ## 🏗️ Arquitectura Tecnológica
-* **Frontend:** React + Vite (Cloudflare Pages)
+* **Frontend:** React + Vite (Despliegue: Cloudflare Pages)
 * **Backend:** API REST en contenedor sin servidor (Google Cloud Run)
 * **Base de Datos:** Neon PostgreSQL
 * **Almacenamiento de Evidencias:** Cloudflare R2
 * **Notificaciones transaccionales:** Resend
+
+---
+
+## 🌿 Flujo de Trabajo con Git y GitHub
+Para trabajar de forma colaborativa sin pisar el trabajo de los compañeros:
+
+1. **Actualizar la rama principal:**
+   ```bash
+   git checkout main
+   git pull origin main
+   ```
+2. **Crear una rama para tu tarea:**
+   ```bash
+   git checkout -b feature/nombre-tarea
+   ```
+3. **Guardar cambios y subir:**
+   ```bash
+   git add .
+   git commit -m "feat: detalle de los cambios"
+   git push -u origin feature/nombre-tarea
+   ```
+4. **Abrir Pull Request en GitHub** para revisión y mezcla a `main`.
