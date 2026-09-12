@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Users,
   ShieldAlert,
@@ -21,6 +21,7 @@ import GestionUsuariosRoles from './GestionUsuariosRoles.jsx';
 import ConfiguracionUnidadesIndustrias from './ConfiguracionUnidadesIndustrias.jsx';
 import BitacoraAuditoria from './BitacoraAuditoria.jsx';
 import { exportarProveedoresAExcel } from '../../utilidades/exportadorExcel.js';
+import { consultarProveedoresApi } from '../../servicios/servicioApi.js';
 import {
   listaProveedoresIniciales,
   catalogoPreguntasCompleto,
@@ -35,6 +36,16 @@ export default function DashboardCorporativo() {
   const [registrosAuditoria, setRegistrosAuditoria] = useState(listaRegistrosAuditoria);
   const [unidadSeleccionada, setUnidadSeleccionada] = useState('todas');
   const [soloCriticosActivo, setSoloCriticosActivo] = useState(false);
+
+  useEffect(() => {
+    async function sincronizarConBaseDatos() {
+      const proveedoresRemotos = await consultarProveedoresApi();
+      if (proveedoresRemotos && proveedoresRemotos.length > 0) {
+        setProveedores(proveedoresRemotos);
+      }
+    }
+    sincronizarConBaseDatos();
+  }, []);
 
   const registrarEventoAuditoria = ({ accion, modulo, detalles }) => {
     const nuevoRegistro = {

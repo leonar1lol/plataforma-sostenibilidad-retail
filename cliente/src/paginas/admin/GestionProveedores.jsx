@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import BarraProgreso from '../../componentes/BarraProgreso.jsx';
 import { exportarProveedoresAExcel } from '../../utilidades/exportadorExcel.js';
+import { registrarProveedorApi } from '../../servicios/servicioApi.js';
 
 export default function GestionProveedores({ proveedores, alActualizarProveedores }) {
   const [terminoBusqueda, setTerminoBusqueda] = useState('');
@@ -77,6 +78,16 @@ export default function GestionProveedores({ proveedores, alActualizarProveedore
       fechaEvaluacion: null,
       dimensiones: null
     };
+
+    registrarProveedorApi({
+      ruc: nuevoRuc,
+      razonSocial: nuevaRazon,
+      representante: nuevoRepresentante,
+      correo: nuevoCorreo,
+      esCritico: nuevoEsCritico,
+      idUnidad: 1,
+      idIndustria: 1
+    });
 
     alActualizarProveedores([nuevo, ...proveedores]);
     setMostrarModalNuevo(false);
