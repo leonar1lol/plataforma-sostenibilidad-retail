@@ -1,219 +1,171 @@
 import React, { useState } from 'react';
-import { Building2, Save, FileText, CheckCircle2 } from 'lucide-react';
+import { Building2, User, FileText, ChevronRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import TarjetaBento from '../../componentes/TarjetaBento.jsx';
 
-const RegistroProveedor = ({ alCompletar }) => {
-  const [datos, setDatos] = useState({
-    razonSocial: '',
-    ruc: '',
-    sector: '',
-    tamaño: '',
-    pais: 'Perú',
-    representante: '',
-    cargo: '',
-    telefono: '',
-    aceptaTerminos: false
-  });
+export default function RegistroProveedor({ correoInicial, alCompletarRegistro, alCompletar }) {
+  const [ruc, setRuc] = useState('20512345678');
+  const [razonSocial, setRazonSocial] = useState('Distribuidora Alimentos del Norte S.A.C.');
+  const [representante, setRepresentante] = useState('Carlos Mendoza Alva');
+  const [idIndustria, setIdIndustria] = useState('1');
+  const [idUnidad, setIdUnidad] = useState('1');
+  const [aceptaDatosPersonales, setAceptaDatosPersonales] = useState(true);
+  const [errorConsentimiento, setErrorConsentimiento] = useState('');
 
-  const manejarCambio = (e) => {
-    const { name, value, type, checked } = e.target;
-    setDatos(previo => ({
-      ...previo,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-  };
+  const manejarEnvio = (evento) => {
+    evento.preventDefault();
+    if (!aceptaDatosPersonales) {
+      setErrorConsentimiento('Debe autorizar el tratamiento de datos personales para continuar.');
+      return;
+    }
 
-  const manejarEnvio = (e) => {
-    e.preventDefault();
-    alCompletar(datos);
+    const funcionCompletar = alCompletarRegistro || alCompletar;
+    if (funcionCompletar) {
+      funcionCompletar({
+        ruc,
+        razonSocial,
+        representante,
+        correo: correoInicial || 'contacto@proveedor.com.pe',
+        idIndustria,
+        idUnidad
+      });
+    }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-120px)] px-4 py-8">
-      <div className="max-w-xl w-full superficie-tarjeta rounded-lg-token p-8">
-        <span className="insignia-info">Paso 1 de 2</span>
-        
-        <h2 className="text-titulo-seccion mt-4 mb-1">
-          Registro de Empresa Proveedora
-        </h2>
-        
-        <p className="text-cuerpo-pequeno text-plataformaSecundario mb-8">
-          Complete los datos básicos de su organización para iniciar el proceso de evaluación de sostenibilidad.
-        </p>
+    <div className="flex items-center justify-center min-h-[calc(100vh-140px)] px-4 py-8">
+      <TarjetaBento clasePersonalizada="max-w-xl w-full p-8 shadow-sm-token">
+        <div className="mb-6">
+          <span className="insignia-info mb-2">Paso 1 de 2 • Identificación</span>
+          <h2 className="text-titulo-seccion text-plataformaTexto mt-1">
+            Registro corporativo del proveedor
+          </h2>
+          <p className="text-cuerpo-pequeno text-plataformaSecundario mt-1">
+            Valide los datos fiscales de su entidad antes de iniciar el cuestionario de evaluación.
+          </p>
+        </div>
 
-        <form onSubmit={manejarEnvio} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div className="md:col-span-2">
-              <label className="text-etiqueta text-plataformaSecundario mb-2 block">
-                Razón Social
+        <form onSubmit={manejarEnvio} className="space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-etiqueta text-plataformaSecundario mb-1.5 block">
+                Número de RUC (11 dígitos)
               </label>
               <div className="relative">
-                <Building2 className="w-5 h-5 text-plataformaSecundario absolute left-3 top-1/2 -translate-y-1/2" />
+                <FileText className="w-4 h-4 text-plataformaSecundario absolute left-3.5 top-1/2 -translate-y-1/2 stroke-[1.8]" />
                 <input
                   type="text"
-                  name="razonSocial"
-                  value={datos.razonSocial}
-                  onChange={manejarCambio}
+                  maxLength={11}
                   required
-                  className="campo-entrada campo-entrada-icono w-full"
-                  placeholder="Nombre legal de la empresa"
+                  value={ruc}
+                  onChange={(e) => setRuc(e.target.value)}
+                  className="campo-entrada campo-entrada-icono w-full font-mono text-xs"
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-etiqueta text-plataformaSecundario mb-2 block">
-                RUC / Identificador Fiscal
-              </label>
-              <input
-                type="text"
-                name="ruc"
-                value={datos.ruc}
-                onChange={manejarCambio}
-                required
-                className="campo-entrada w-full"
-                placeholder="11 dígitos"
-              />
-            </div>
-
-            <div>
-              <label className="text-etiqueta text-plataformaSecundario mb-2 block">
-                Sector Comercial
+              <label className="text-etiqueta text-plataformaSecundario mb-1.5 block">
+                Unidad de Negocio
               </label>
               <select
-                name="sector"
-                value={datos.sector}
-                onChange={manejarCambio}
-                required
-                className="campo-select w-full"
+                value={idUnidad}
+                onChange={(e) => setIdUnidad(e.target.value)}
+                className="campo-select w-full text-xs"
               >
-                <option value="">Seleccione un sector</option>
-                <option value="manufactura">Manufactura</option>
-                <option value="logistica">Logística y Transporte</option>
-                <option value="agricultura">Agricultura y Alimentos</option>
-                <option value="servicios">Servicios</option>
-                <option value="tecnologia">Tecnología</option>
+                <option value="1">Supermercados Peruanos</option>
+                <option value="2">Promart</option>
+                <option value="3">Oechsle</option>
+                <option value="4">Real Plaza</option>
+                <option value="5">Farmacias Peruanas</option>
+                <option value="6">SIP</option>
+                <option value="7">Intercorp Retail Sucursal China</option>
               </select>
             </div>
+          </div>
 
-            <div>
-              <label className="text-etiqueta text-plataformaSecundario mb-2 block">
-                Tamaño de Empresa
-              </label>
-              <select
-                name="tamaño"
-                value={datos.tamaño}
-                onChange={manejarCambio}
-                required
-                className="campo-select w-full"
-              >
-                <option value="">Seleccione tamaño</option>
-                <option value="micro">Micro (1-10 emp.)</option>
-                <option value="pequena">Pequeña (11-50 emp.)</option>
-                <option value="mediana">Mediana (51-200 emp.)</option>
-                <option value="grande">Grande (+200 emp.)</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="text-etiqueta text-plataformaSecundario mb-2 block">
-                País de Operación
-              </label>
-              <select
-                name="pais"
-                value={datos.pais}
-                onChange={manejarCambio}
-                required
-                className="campo-select w-full"
-              >
-                <option value="Perú">Perú</option>
-                <option value="Colombia">Colombia</option>
-                <option value="Chile">Chile</option>
-                <option value="Ecuador">Ecuador</option>
-                <option value="México">México</option>
-              </select>
-            </div>
-
-            <div className="md:col-span-2 pt-4 border-t border-black/[0.06]">
-              <h3 className="text-etiqueta font-medium mb-4 text-plataformaTexto">
-                Contacto Principal
-              </h3>
-            </div>
-
-            <div>
-              <label className="text-etiqueta text-plataformaSecundario mb-2 block">
-                Nombre Completo
-              </label>
+          <div>
+            <label className="text-etiqueta text-plataformaSecundario mb-1.5 block">
+              Razón Social
+            </label>
+            <div className="relative">
+              <Building2 className="w-4 h-4 text-plataformaSecundario absolute left-3.5 top-1/2 -translate-y-1/2 stroke-[1.8]" />
               <input
                 type="text"
-                name="representante"
-                value={datos.representante}
-                onChange={manejarCambio}
                 required
-                className="campo-entrada w-full"
-                placeholder="Nombres y apellidos"
-              />
-            </div>
-
-            <div>
-              <label className="text-etiqueta text-plataformaSecundario mb-2 block">
-                Cargo
-              </label>
-              <input
-                type="text"
-                name="cargo"
-                value={datos.cargo}
-                onChange={manejarCambio}
-                required
-                className="campo-entrada w-full"
-                placeholder="Ej. Gerente Comercial"
-              />
-            </div>
-            
-            <div className="md:col-span-2">
-              <label className="text-etiqueta text-plataformaSecundario mb-2 block">
-                Teléfono
-              </label>
-              <input
-                type="tel"
-                name="telefono"
-                value={datos.telefono}
-                onChange={manejarCambio}
-                required
-                className="campo-entrada w-full"
-                placeholder="+51 999 999 999"
+                value={razonSocial}
+                onChange={(e) => setRazonSocial(e.target.value)}
+                className="campo-entrada campo-entrada-icono w-full text-xs"
               />
             </div>
           </div>
 
-          <div className="border-l-2 border-plataformaAzul pl-4 py-3 bg-black/[0.015] rounded-r-md-token mt-6">
-            <label className="flex items-start gap-3 cursor-pointer">
+          <div>
+            <label className="text-etiqueta text-plataformaSecundario mb-1.5 block">
+              Representante de contacto
+            </label>
+            <div className="relative">
+              <User className="w-4 h-4 text-plataformaSecundario absolute left-3.5 top-1/2 -translate-y-1/2 stroke-[1.8]" />
+              <input
+                type="text"
+                required
+                value={representante}
+                onChange={(e) => setRepresentante(e.target.value)}
+                className="campo-entrada campo-entrada-icono w-full text-xs"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-etiqueta text-plataformaSecundario mb-1.5 block">
+              Industria o Sector
+            </label>
+            <select
+              value={idIndustria}
+              onChange={(e) => setIdIndustria(e.target.value)}
+              className="campo-select w-full text-xs"
+            >
+              <option value="1">Alimentos y Bebidas Envasados</option>
+              <option value="2">Transporte, Almacén y Logística</option>
+              <option value="3">Textil, Confecciones y Calzado</option>
+              <option value="4">Servicios Generales y Mantenimiento</option>
+              <option value="5">Productos Farmacéuticos y Cuidado Personal</option>
+            </select>
+          </div>
+
+          <div className="border-l-2 border-plataformaAzul pl-4 py-3 bg-black/[0.015] rounded-r-md-token">
+            <div className="flex items-start gap-3">
               <input
                 type="checkbox"
-                name="aceptaTerminos"
-                checked={datos.aceptaTerminos}
-                onChange={manejarCambio}
-                required
-                className="w-4 h-4 rounded accent-plataformaAzul mt-1"
+                id="chkConsentimiento"
+                checked={aceptaDatosPersonales}
+                onChange={(e) => {
+                  setAceptaDatosPersonales(e.target.checked);
+                  setErrorConsentimiento('');
+                }}
+                className="mt-0.5 rounded text-plataformaAzul cursor-pointer"
               />
-              <span className="text-cuerpo-pequeno text-plataformaTexto leading-relaxed">
-                Declaro que la información proporcionada es veraz y acepto los términos de evaluación de sostenibilidad corporativa.
+              <label htmlFor="chkConsentimiento" className="text-cuerpo-pequeno text-plataformaTexto leading-relaxed cursor-pointer">
+                Autorizo el tratamiento de mis datos personales de contacto conforme a la <strong>Ley N° 29733 (Ley de Protección de Datos Personales de la República del Perú)</strong> con el fin exclusivo de registrar la evaluación de sostenibilidad de Intercorp Retail (RNF03).
+              </label>
+            </div>
+            {errorConsentimiento && (
+              <span className="text-subtexto text-red-600 block pt-1.5 pl-6">
+                {errorConsentimiento}
               </span>
-            </label>
+            )}
           </div>
 
           <div className="pt-2">
             <button
               type="submit"
-              className="boton-primario w-full flex items-center justify-center gap-2"
+              className="boton-primario w-full flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Save className="w-4 h-4" />
-              Guardar y Continuar a Evaluación
+              <span>Confirmar y comenzar evaluación</span>
+              <ChevronRight className="w-4 h-4 stroke-[2]" />
             </button>
           </div>
         </form>
-      </div>
+      </TarjetaBento>
     </div>
   );
-};
-
-export default RegistroProveedor;
+}

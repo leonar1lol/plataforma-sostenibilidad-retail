@@ -1,281 +1,306 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Save, CheckCircle2, Circle, Upload, AlertCircle, Info, FileText } from 'lucide-react';
-import BarraProgreso from '../../componentes/BarraProgreso';
+import {
+  CheckCircle2,
+  Circle,
+  Save,
+  ArrowRight,
+  ArrowLeft,
+  Sparkles,
+  UploadCloud,
+  FileCheck,
+  Trash2
+} from 'lucide-react';
+import TarjetaBento from '../../componentes/TarjetaBento.jsx';
+import BarraProgreso from '../../componentes/BarraProgreso.jsx';
+import { catalogoPreguntasCompleto } from '../../datos/datosIniciales.js';
 
-const preguntasDemo = [
-  {
-    id: 'q1',
-    codigo: 'AMB-01',
-    dimension: 'Ambiental',
-    peso: 'Alto',
-    pregunta: '¿La empresa cuenta con una política formal y documentada de gestión ambiental?',
-    alternativas: [
-      { id: 'a', texto: 'Sí, documentada y comunicada a toda la empresa', puntaje: 100 },
-      { id: 'b', texto: 'Sí, pero en proceso de implementación', puntaje: 50 },
-      { id: 'c', texto: 'No, pero se planea implementar este año', puntaje: 20 },
-      { id: 'd', texto: 'No contamos con una política ambiental', puntaje: 0 }
-    ],
-    requiereEvidencia: true
-  },
-  {
-    id: 'q2',
-    codigo: 'SOC-05',
-    dimension: 'Social',
-    peso: 'Crítico',
-    pregunta: '¿Qué porcentaje de sus trabajadores cuenta con contrato formal y beneficios de ley?',
-    alternativas: [
-      { id: 'a', texto: '100% de los trabajadores', puntaje: 100 },
-      { id: 'b', texto: 'Entre 80% y 99%', puntaje: 75 },
-      { id: 'c', texto: 'Entre 50% y 79%', puntaje: 40 },
-      { id: 'd', texto: 'Menos del 50%', puntaje: 0 }
-    ],
-    requiereEvidencia: true
-  },
-  {
-    id: 'q3',
-    codigo: 'GOB-02',
-    dimension: 'Gobernanza',
-    peso: 'Medio',
-    pregunta: '¿Tienen establecido un canal de denuncias anónimo y accesible?',
-    alternativas: [
-      { id: 'a', texto: 'Sí, operado por un tercero independiente', puntaje: 100 },
-      { id: 'b', texto: 'Sí, operado internamente', puntaje: 70 },
-      { id: 'c', texto: 'En desarrollo', puntaje: 30 },
-      { id: 'd', texto: 'No contamos con canal de denuncias', puntaje: 0 }
-    ],
-    requiereEvidencia: false
-  }
-];
-
-const CuestionarioDinamico = ({ alFinalizar, datosProveedor }) => {
+export default function CuestionarioDinamico({ datosProveedor, alFinalizarCuestionario, alFinalizar }) {
+  const [preguntas, setPreguntas] = useState(catalogoPreguntasCompleto);
   const [indiceActual, setIndiceActual] = useState(0);
-  const [respuestas, setRespuestas] = useState({});
-  const [evidencias, setEvidencias] = useState({});
-  const [guardando, setGuardando] = useState(false);
-  const [mensaje, setMensaje] = useState(null);
+  const [respuestasSeleccionadas, setRespuestasSeleccionadas] = useState({});
+  const [evidenciasArchivos, setEvidenciasArchivos] = useState({});
+  const [mensajeBorrador, setMensajeBorrador] = useState('');
 
-  const preguntaActual = preguntasDemo[indiceActual];
-  const progreso = (Object.keys(respuestas).length / preguntasDemo.length) * 100;
-  const estaRespondida = respuestas[preguntaActual.id] !== undefined;
+  useEffect(() => {
+    const claveBorrador = `borrador_${datosProveedor?.ruc || 'demo'}`;
+    const borradorGuardado = localStorage.getItem(claveBorrador);
+    if (borradorGuardado) {
+      try {
+        const datos = JSON.parse(borradorGuardado);
+        if (datos.respuestas) setRespuestasSeleccionadas(datos.respuestas);
+        if (typeof datos.indice === 'number') setIndiceActual(datos.indice);
+      } catch (e) {}
+    }
+  }, [datosProveedor]);
 
-  const manejarSeleccion = (idAlternativa) => {
-    setRespuestas({
-      ...respuestas,
-      [preguntaActual.id]: idAlternativa
+  const preguntaActual = preguntas[indiceActual] || preguntas[0];
+  const respuestaElegida = respuestasSeleccionadas[preguntaActual.id_item];
+  const archivoAdjunto = evidenciasArchivos[preguntaActual.id_item];
+
+  const porcentajeAvance = Math.round(
+    (Object.keys(respuestasSeleccionadas).length / preguntas.length) * 100
+  );
+
+  const alSeleccionarAlternativa = (alternativa) => {
+    setRespuestasSeleccionadas((previas) => ({
+      ...previas,
+      [preguntaActual.id_item]: {
+        id_item: preguntaActual.id_item,
+        dimension: preguntaActual.dimension,
+        id_alternativa: alternativa.id_alternativa,
+        puntaje: alternativa.puntaje,
+        texto: alternativa.texto
+      }
+    }));
+  };
+
+  const alAdjuntarArchivo = (evento) => {
+    const archivo = evento.target.files[0];
+    if (!archivo) return;
+
+    setEvidenciasArchivos((previas) => ({
+      ...previas,
+      [preguntaActual.id_item]: {
+        nombre: archivo.name,
+        tamanio: `${(archivo.size / 1024).toFixed(1)} KB`,
+        fecha: new Date().toLocaleTimeString()
+      }
+    }));
+  };
+
+  const eliminarArchivo = () => {
+    setEvidenciasArchivos((previas) => {
+      const copia = { ...previas };
+      delete copia[preguntaActual.id_item];
+      return copia;
     });
   };
 
-  const simularSubidaEvidencia = (e) => {
-    const archivo = e.target.files[0];
-    if (archivo) {
-      setEvidencias({
-        ...evidencias,
-        [preguntaActual.id]: archivo.name
-      });
-      mostrarMensaje('Evidencia adjuntada correctamente', 'exito');
-    }
-  };
-
-  const mostrarMensaje = (texto, tipo = 'info') => {
-    setMensaje({ texto, tipo });
-    setTimeout(() => setMensaje(null), 3000);
-  };
-
   const guardarBorrador = () => {
-    setGuardando(true);
-    setTimeout(() => {
-      setGuardando(false);
-      mostrarMensaje('Borrador guardado exitosamente', 'exito');
-    }, 800);
+    const claveBorrador = `borrador_${datosProveedor?.ruc || 'demo'}`;
+    localStorage.setItem(
+      claveBorrador,
+      JSON.stringify({
+        respuestas: respuestasSeleccionadas,
+        indice: indiceActual,
+        fecha: new Date().toISOString()
+      })
+    );
+    setMensajeBorrador('Borrador guardado localmente');
+    setTimeout(() => setMensajeBorrador(''), 2500);
   };
 
   const avanzar = () => {
-    if (indiceActual < preguntasDemo.length - 1) {
-      setIndiceActual(indiceActual + 1);
+    if (!respuestaElegida) return;
+
+    if (indiceActual < preguntas.length - 1) {
+      setIndiceActual((previo) => previo + 1);
     } else {
-      finalizar();
+      localStorage.removeItem(`borrador_${datosProveedor?.ruc || 'demo'}`);
+      const listaRespuestas = Object.values(respuestasSeleccionadas);
+      const funcionFinalizar = alFinalizarCuestionario || alFinalizar;
+      if (funcionFinalizar) {
+        funcionFinalizar(listaRespuestas);
+      }
     }
   };
 
   const retroceder = () => {
     if (indiceActual > 0) {
-      setIndiceActual(indiceActual - 1);
+      setIndiceActual((previo) => previo - 1);
     }
-  };
-
-  const finalizar = () => {
-    const faltantes = preguntasDemo.filter(p => !respuestas[p.id]);
-    
-    if (faltantes.length > 0) {
-      mostrarMensaje(`Faltan responder ${faltantes.length} preguntas`, 'error');
-      return;
-    }
-    
-    alFinalizar(respuestas);
   };
 
   return (
-    <div className="max-w-3xl mx-auto py-10 px-4">
-      {mensaje && (
-        <div className={`toast-notificacion fixed top-6 right-6 z-50 p-4 rounded-md-token shadow-lg-token flex items-center gap-3 ${
-          mensaje.tipo === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-white text-plataformaTexto border border-black/[0.06]'
-        }`}>
-          {mensaje.tipo === 'error' ? <AlertCircle className="w-5 h-5 text-red-500" /> : <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
-          <span className="text-cuerpo-pequeno font-medium">{mensaje.texto}</span>
+    <div className="max-w-3xl mx-auto py-8 px-4">
+      {mensajeBorrador && (
+        <div className="toast-notificacion">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+          <span>{mensajeBorrador}</span>
         </div>
       )}
 
-      <div className="superficie-tarjeta rounded-lg-token p-6 mb-5">
-        <div className="flex justify-between items-end mb-4">
+      <TarjetaBento clasePersonalizada="p-6 mb-5 shadow-sm-token">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
           <div>
-            <div className="text-etiqueta text-plataformaSecundario">
-              {datosProveedor?.razonSocial || 'EcoPack Solutions'}
-            </div>
-            <h1 className="text-titulo-seccion mt-1">
-              Evaluación ESG 2024
-            </h1>
+            <span className="text-etiqueta text-plataformaSecundario block">
+              {datosProveedor?.razonSocial || 'Alimentos del Norte S.A.C.'} • RUC {datosProveedor?.ruc || '20512345678'}
+            </span>
+            <h2 className="text-titulo-seccion text-plataformaTexto mt-0.5">
+              Cuestionario de Sostenibilidad de Proveedores
+            </h2>
           </div>
-          <div className="text-right">
-            <div className="text-etiqueta font-semibold text-plataformaTexto">
-              {Math.round(progreso)}%
-            </div>
-            <div className="text-subtexto text-plataformaSecundario">
-              {Object.keys(respuestas).length} de {preguntasDemo.length} respondidas
-            </div>
+          <div className="sm:text-right">
+            <span className="text-etiqueta font-mono font-semibold text-plataformaTexto">
+              {porcentajeAvance}% completado
+            </span>
+            <span className="text-subtexto text-plataformaSecundario block">
+              Pregunta {indiceActual + 1} de {preguntas.length}
+            </span>
           </div>
         </div>
-        
-        <BarraProgreso porcentaje={progreso} altura="h-1.5" />
-        
-        <div className="flex gap-1 mt-4 pt-4 border-t border-black/[0.06] flex-wrap">
-          {preguntasDemo.map((p, index) => {
-            let clasePildora = 'bg-black/[0.04] text-plataformaSecundario';
-            if (index === indiceActual) clasePildora = 'bg-plataformaAzul text-white';
-            else if (respuestas[p.id]) clasePildora = 'bg-emerald-500/15 text-emerald-700';
-            
+
+        <BarraProgreso porcentaje={porcentajeAvance} altura="h-1" />
+
+        <div className="flex items-center gap-1.5 mt-4 pt-3 border-t border-black/[0.04] overflow-x-auto pb-1">
+          {preguntas.map((p, idx) => {
+            const respondida = !!respuestasSeleccionadas[p.id_item];
+            const esActual = idx === indiceActual;
+
             return (
               <button
-                key={p.id}
-                onClick={() => setIndiceActual(index)}
-                className={`w-6 h-6 rounded-full text-subtexto font-mono font-semibold transition-colors ${clasePildora}`}
+                key={p.id_item}
+                onClick={() => setIndiceActual(idx)}
+                className={`w-7 h-7 rounded-full text-subtexto font-mono font-semibold transition-all cursor-pointer flex items-center justify-center shrink-0 ${
+                  esActual
+                    ? 'bg-plataformaAzul text-white shadow-xs-token'
+                    : respondida
+                    ? 'bg-emerald-500/15 text-emerald-700 hover:bg-emerald-500/25'
+                    : 'bg-black/[0.04] text-plataformaSecundario hover:bg-black/[0.08]'
+                }`}
               >
-                {index + 1}
+                {idx + 1}
               </button>
             );
           })}
         </div>
-      </div>
+      </TarjetaBento>
 
-      <div className="superficie-tarjeta rounded-lg-token p-8">
-        <div className="flex items-center gap-3 mb-4">
-          <span className="insignia-neutra">
-            {preguntaActual.dimension}
-          </span>
-          <span className="insignia-info font-mono">
-            {preguntaActual.codigo}
-          </span>
-          <span className="text-subtexto text-plataformaSecundario ml-auto">
-            Peso: {preguntaActual.peso}
-          </span>
+      <TarjetaBento clasePersonalizada="p-8 shadow-sm-token">
+        <div className="mb-6">
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            <span className="insignia-neutra">
+              Dimensión {preguntaActual.dimension}
+            </span>
+            <span className="insignia-info font-mono font-bold">
+              {preguntaActual.codigo}
+            </span>
+            <span className="text-subtexto text-plataformaSecundario">
+              Ponderación: {preguntaActual.peso}%
+            </span>
+          </div>
+
+          <h3 className="text-titulo-seccion text-plataformaTexto">
+            {preguntaActual.enunciado}
+          </h3>
         </div>
 
-        <h2 className="text-titulo-seccion mt-4 mb-6 leading-tight">
-          {preguntaActual.pregunta}
-        </h2>
+        <div className="space-y-3 mb-6">
+          {preguntaActual.alternativas.map((alternativa) => {
+            const estaSeleccionada = respuestaElegida?.id_alternativa === alternativa.id_alternativa;
 
-        <div className="space-y-3 mb-8">
-          {preguntaActual.alternativas.map((alt) => {
-            const estaSeleccionada = respuestas[preguntaActual.id] === alt.id;
-            
             return (
               <div
-                key={alt.id}
-                onClick={() => manejarSeleccion(alt.id)}
-                className={`p-4 rounded-md-token border transition-all duration-180 cursor-pointer flex items-start gap-3 ${
-                  estaSeleccionada 
-                    ? 'border-plataformaAzul bg-plataformaAzul/[0.04]' 
-                    : 'border-black/[0.06] hover:border-black/[0.12] hover:bg-black/[0.01]'
+                key={alternativa.id_alternativa}
+                onClick={() => alSeleccionarAlternativa(alternativa)}
+                className={`p-4 rounded-md-token border transition-all duration-180 cursor-pointer flex items-center justify-between ${
+                  estaSeleccionada
+                    ? 'border-plataformaAzul bg-plataformaAzul/[0.04] ring-1 ring-plataformaAzul'
+                    : 'border-black/[0.06] bg-black/[0.01] hover:border-black/[0.12] hover:bg-black/[0.02]'
                 }`}
               >
-                <div className={`mt-0.5 flex-shrink-0 ${estaSeleccionada ? 'text-plataformaAzul' : 'text-plataformaSecundario'}`}>
+                <div className="flex items-center gap-3">
                   {estaSeleccionada ? (
-                    <CheckCircle2 className="w-5 h-5" />
+                    <CheckCircle2 className="w-5 h-5 text-plataformaAzul shrink-0 stroke-[2]" />
                   ) : (
-                    <Circle className="w-5 h-5" />
+                    <Circle className="w-5 h-5 text-plataformaSecundario/40 shrink-0 stroke-[1.5]" />
                   )}
+                  <span className={`text-cuerpo ${estaSeleccionada ? 'font-medium text-plataformaTexto' : 'text-plataformaTexto'}`}>
+                    {alternativa.texto}
+                  </span>
                 </div>
-                <span className="text-cuerpo text-plataformaTexto pt-0.5">{alt.texto}</span>
               </div>
             );
           })}
         </div>
 
-        {preguntaActual.requiereEvidencia && (
-          <div className="p-5 rounded-md-token bg-black/[0.015] border border-dashed border-black/[0.1] mb-8">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-black/[0.04] flex items-center justify-center flex-shrink-0 text-plataformaSecundario">
-                <FileText className="w-5 h-5" />
+        {preguntaActual.habilitaEvidencia && (
+          <div className="mb-6 p-4 rounded-md-token bg-black/[0.015] border border-dashed border-black/[0.1]">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <UploadCloud className="w-4 h-4 text-plataformaAzul" />
+                <span className="text-etiqueta font-semibold text-plataformaTexto">
+                  Sustento documental requerido
+                </span>
               </div>
-              <div className="flex-grow">
-                <h4 className="text-cuerpo-pequeno font-medium text-plataformaTexto mb-1">
-                  Respaldo Documentario Requerido
-                </h4>
-                <p className="text-subtexto text-plataformaSecundario mb-3">
-                  Esta pregunta requiere evidencia para validar su respuesta.
-                </p>
-                
-                {evidencias[preguntaActual.id] ? (
-                  <div className="flex items-center gap-2 p-2 bg-white rounded border border-black/[0.06] text-cuerpo-pequeno">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                    <span className="truncate max-w-[200px]">{evidencias[preguntaActual.id]}</span>
-                    <label className="ml-auto text-plataformaAzul hover:underline cursor-pointer text-etiqueta">
-                      Cambiar
-                      <input type="file" className="hidden" onChange={simularSubidaEvidencia} />
-                    </label>
-                  </div>
-                ) : (
-                  <label className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-black/[0.1] rounded-md-token text-etiqueta font-medium cursor-pointer hover:bg-black/[0.02] transition-colors">
-                    <Upload className="w-4 h-4" />
-                    Subir documento
-                    <input type="file" className="hidden" onChange={simularSubidaEvidencia} />
-                  </label>
-                )}
-              </div>
+              <span className="text-subtexto text-plataformaSecundario">
+                PDF, JPG o PNG hasta 10 MB
+              </span>
             </div>
+
+            {archivoAdjunto ? (
+              <div className="p-3 bg-white rounded-md-token border border-black/[0.06] flex items-center justify-between shadow-xs-token">
+                <div className="flex items-center gap-2.5">
+                  <FileCheck className="w-4 h-4 text-emerald-600" />
+                  <div>
+                    <span className="text-etiqueta font-medium text-plataformaTexto block">{archivoAdjunto.nombre}</span>
+                    <span className="text-subtexto text-plataformaSecundario">{archivoAdjunto.tamanio} • Subido</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={eliminarArchivo}
+                  className="p-1.5 hover:bg-red-50 text-red-600 rounded-full transition-colors cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <label className="block p-4 border border-dashed border-black/[0.12] rounded-md-token text-center hover:bg-white transition-colors cursor-pointer">
+                <span className="text-cuerpo-pequeno font-medium text-plataformaAzul block">
+                  Haga clic para adjuntar archivo de evidencia
+                </span>
+                <span className="text-subtexto text-plataformaSecundario mt-0.5 block">
+                  Certificados, auditorías o políticas vigentes
+                </span>
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={alAdjuntarArchivo}
+                  className="hidden"
+                />
+              </label>
+            )}
           </div>
         )}
 
-        <div className="pt-6 border-t border-black/[0.06] flex items-center justify-between">
+        <div className="flex items-center justify-between pt-5 border-t border-black/[0.05]">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={indiceActual === 0}
+              onClick={retroceder}
+              className={`boton-fantasma ${
+                indiceActual === 0 ? 'opacity-30 cursor-not-allowed' : ''
+              }`}
+            >
+              <ArrowLeft className="w-3.5 h-3.5 stroke-[1.8]" />
+              <span>Anterior</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={guardarBorrador}
+              className="boton-secundario"
+            >
+              <Save className="w-3.5 h-3.5 stroke-[1.8]" />
+              <span>Guardar borrador</span>
+            </button>
+          </div>
+
           <button
-            onClick={retroceder}
-            disabled={indiceActual === 0}
-            className="boton-fantasma flex items-center gap-1"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Anterior
-          </button>
-          
-          <button
-            onClick={guardarBorrador}
-            disabled={guardando}
-            className="boton-secundario flex items-center gap-2"
-          >
-            <Save className="w-4 h-4" />
-            {guardando ? 'Guardando...' : 'Guardar borrador'}
-          </button>
-          
-          <button
+            type="button"
+            disabled={!respuestaElegida}
             onClick={avanzar}
-            disabled={!estaRespondida}
-            className={`boton-primario flex items-center gap-1 ${!estaRespondida ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`boton-primario ${
+              !respuestaElegida ? 'opacity-40 cursor-not-allowed' : ''
+            }`}
           >
-            {indiceActual === preguntasDemo.length - 1 ? 'Finalizar' : 'Siguiente'}
-            <ChevronRight className="w-4 h-4" />
+            <span>{indiceActual === preguntas.length - 1 ? 'Finalizar evaluación' : 'Continuar'}</span>
+            <ArrowRight className="w-3.5 h-3.5 stroke-[2]" />
           </button>
         </div>
-      </div>
+      </TarjetaBento>
     </div>
   );
-};
-
-export default CuestionarioDinamico;
+}
