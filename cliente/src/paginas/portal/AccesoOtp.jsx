@@ -1,205 +1,231 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mail, ArrowRight, ShieldCheck, RefreshCw, AlertCircle } from 'lucide-react';
-import TarjetaBento from '../../componentes/TarjetaBento.jsx';
+import { Mail, ShieldCheck, AlertCircle, ArrowRight, RefreshCw } from 'lucide-react';
 
-export default function AccesoOtp({ alCompletarAcceso }) {
-  const [correo, setCorreo] = useState('contacto@proveedor.com.pe');
-  const [casillasOtp, setCasillasOtp] = useState(['', '', '', '', '', '']);
-  const [segundosRestantes, setSegundosRestantes] = useState(600);
-  const [codigoGenerado, setCodigoGenerado] = useState('847291');
-  const [mensajeError, setMensajeError] = useState('');
+const AccesoOtp = ({ alCompletar }) => {
+  const [paso, setPaso] = useState('correo');
+  const [correo, setCorreo] = useState('');
+  const [codigo, setCodigo] = useState(['', '', '', '', '', '']);
+  const [tiempoRestante, setTiempoRestante] = useState(300);
   const [cargando, setCargando] = useState(false);
-  const referenciasCasillas = useRef([]);
+  const [error, setError] = useState(null);
+  
+  const entradasRef = useRef([]);
 
   useEffect(() => {
-    if (segundosRestantes <= 0) return;
-    const temporizador = setInterval(() => {
-      setSegundosRestantes((previo) => (previo > 0 ? previo - 1 : 0));
-    }, 1000);
+    let temporizador;
+    if (paso === 'otp' && tiempoRestante > 0) {
+      temporizador = setInterval(() => {
+        setTiempoRestante((previo) => previo - 1);
+      }, 1000);
+    } else if (tiempoRestante === 0) {
+      setError('El código ha expirado. Por favor, solicita uno nuevo.');
+    }
     return () => clearInterval(temporizador);
-  }, [segundosRestantes]);
+  }, [paso, tiempoRestante]);
 
   const formatearTiempo = (segundos) => {
     const minutos = Math.floor(segundos / 60);
-    const segundosResto = segundos % 60;
-    return `${minutos.toString().padStart(2, '0')}:${segundosResto.toString().padStart(2, '0')}`;
+    const segundosRestantes = segundos % 60;
+    return `${minutos}:${segundosRestantes < 10 ? '0' : ''}${segundosRestantes}`;
   };
 
-  const alCambiarCasilla = (indice, valor) => {
-    if (!/^\d*$/.test(valor)) return;
-
-    const nuevasCasillas = [...casillasOtp];
-    nuevasCasillas[indice] = valor.slice(-1);
-    setCasillasOtp(nuevasCasillas);
-    setMensajeError('');
-
-    if (valor && indice < 5) {
-      referenciasCasillas.current[indice + 1]?.focus();
-    }
-  };
-
-  const alPresionarTecla = (indice, evento) => {
-    if (evento.key === 'Backspace' && !casillasOtp[indice] && indice > 0) {
-      referenciasCasillas.current[indice - 1]?.focus();
-    }
-  };
-
-  const alPegarTexto = (evento) => {
-    evento.preventDefault();
-    const datosPegados = evento.clipboardData.getData('text').trim();
-    if (/^\d{6}$/.test(datosPegados)) {
-      const digitos = datosPegados.split('');
-      setCasillasOtp(digitos);
-      referenciasCasillas.current[5]?.focus();
-    }
-  };
-
-  const reenviarCodigo = () => {
-    const nuevoCodigo = Math.floor(100000 + Math.random() * 900000).toString();
-    setCodigoGenerado(nuevoCodigo);
-    setCasillasOtp(['', '', '', '', '', '']);
-    setSegundosRestantes(600);
-    setMensajeError('');
-    referenciasCasillas.current[0]?.focus();
-  };
-
-  const validarAcceso = (evento) => {
-    evento?.preventDefault();
-    const codigoIngresado = casillasOtp.join('');
-
-    if (codigoIngresado.length < 6) {
-      setMensajeError('Por favor ingrese los 6 dígitos del código.');
+  const manejarEnvioCorreo = (e) => {
+    e.preventDefault();
+    if (!correo || !correo.includes('@')) {
+      setError('Por favor, ingresa un correo electrónico válido');
       return;
     }
-
-    if (segundosRestantes === 0) {
-      setMensajeError('El código ha caducado. Solicite uno nuevo.');
-      return;
-    }
-
     setCargando(true);
+    setError(null);
     setTimeout(() => {
       setCargando(false);
-      if (codigoIngresado === codigoGenerado || codigoIngresado === '123456') {
-        alCompletarAcceso({ correo });
-      } else {
-        setMensajeError('El código ingresado no es válido.');
-      }
-    }, 350);
+      setPaso('otp');
+      setTiempoRestante(300);
+    }, 1000);
   };
 
-  const rellenarCodigoDemostracion = () => {
-    const digitos = codigoGenerado.split('');
-    setCasillasOtp(digitos);
-    setMensajeError('');
+  const manejarCambioCodigo = (indice, valor) => {
+    if (isNaN(valor)) return;
+    
+    const nuevoCodigo = [...codigo];
+    nuevoCodigo[indice] = valor;
+    setCodigo(nuevoCodigo);
+
+    if (valor !== '' && indice < 5) {
+      entradasRef.current[indice + 1].focus();
+    }
+  };
+
+  const manejarTeclaPresionada = (indice, e) => {
+    if (e.key === 'Backspace' && codigo[indice] === '' && indice > 0) {
+      entradasRef.current[indice - 1].focus();
+    }
+  };
+
+  const manejarPegado = (e) => {
+    e.preventDefault();
+    const datosPegados = e.clipboardData.getData('text').slice(0, 6).split('');
+    if (datosPegados.some(isNaN)) return;
+    
+    const nuevoCodigo = [...codigo];
+    datosPegados.forEach((valor, i) => {
+      if (i < 6) nuevoCodigo[i] = valor;
+    });
+    setCodigo(nuevoCodigo);
+    
+    const siguienteIndice = Math.min(datosPegados.length, 5);
+    entradasRef.current[siguienteIndice].focus();
+  };
+
+  const manejarVerificacion = () => {
+    const codigoCompleto = codigo.join('');
+    if (codigoCompleto.length < 6) {
+      setError('Por favor, ingresa el código completo de 6 dígitos');
+      return;
+    }
+    
+    setCargando(true);
+    setError(null);
+    
+    setTimeout(() => {
+      if (codigoCompleto === '123456') {
+        alCompletar({ id: 'prov-001', nombre: 'EcoPack Solutions', correo });
+      } else {
+        setCargando(false);
+        setError('El código ingresado es incorrecto');
+        setCodigo(['', '', '', '', '', '']);
+        entradasRef.current[0].focus();
+      }
+    }, 1200);
+  };
+
+  const reeenviarCodigo = () => {
+    setCargando(true);
+    setError(null);
+    setTimeout(() => {
+      setCargando(false);
+      setTiempoRestante(300);
+      setCodigo(['', '', '', '', '', '']);
+      entradasRef.current[0].focus();
+    }, 1000);
   };
 
   return (
-    <div className="max-w-[460px] mx-auto py-16 px-4">
-      <TarjetaBento clasePersonalizada="p-8 md:p-10 shadow-[0_8px_32px_rgba(0,0,0,0.04)]">
-        <div className="text-center mb-8">
-          <div className="w-14 h-14 rounded-[18px] bg-[#0071E3]/[0.08] text-plataformaAzul flex items-center justify-center mx-auto mb-5 shadow-xs">
-            <ShieldCheck className="w-7 h-7 stroke-[1.8]" />
-          </div>
-          <span className="text-[11px] font-semibold uppercase tracking-widest text-plataformaSecundario block mb-1.5">
-            Acceso Seguro
-          </span>
-          <h2 className="text-[28px] font-semibold tracking-[-0.03em] text-plataformaTexto leading-tight mb-2">
-            Validación de identidad
-          </h2>
-          <p className="text-[13px] text-plataformaSecundario leading-relaxed max-w-xs mx-auto">
-            Ingreso mediante el código único remitido por la unidad de negocio corporativa.
-          </p>
+    <div className="flex items-center justify-center min-h-[calc(100vh-120px)] px-4">
+      <div className="max-w-[420px] w-full superficie-tarjeta rounded-lg-token p-8">
+        <div className="w-10 h-10 rounded-md-token bg-plataformaAzul/[0.08] text-plataformaAzul flex items-center justify-center mx-auto mb-5">
+          <ShieldCheck className="w-5 h-5" />
         </div>
+        
+        <h2 className="text-titulo-seccion text-center">
+          {paso === 'correo' ? 'Acceso Proveedores' : 'Verificación de Identidad'}
+        </h2>
+        
+        <p className="text-cuerpo-pequeno text-plataformaSecundario text-center mt-2 mb-8">
+          {paso === 'correo' 
+            ? 'Ingresa tu correo institucional para recibir un código de acceso único.'
+            : `Hemos enviado un código de 6 dígitos a ${correo}`
+          }
+        </p>
 
-        <form onSubmit={validarAcceso} className="space-y-6">
-          <div>
-            <label className="block text-[11px] font-medium uppercase tracking-wider text-plataformaSecundario mb-2">
-              Correo del representante
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-plataformaSecundario">
-                <Mail className="w-4 h-4 stroke-[1.7]" />
-              </div>
-              <input
-                type="email"
-                value={correo}
-                onChange={(e) => setCorreo(e.target.value)}
-                required
-                className="w-full pl-10 pr-4 py-3 bg-black/[0.025] border border-black/[0.06] rounded-[14px] text-sm text-plataformaTexto placeholder:text-[#A1A1A6] focus:outline-none focus:bg-white focus:border-[#0071E3] focus:ring-4 focus:ring-[#0071E3]/10 transition-all duration-200"
-              />
-            </div>
+        {error && (
+          <div className="rounded-md-token bg-red-50 border border-red-200/60 p-3 flex items-center gap-2 text-cuerpo-pequeno text-red-700 mb-6">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span>{error}</span>
           </div>
+        )}
 
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-[11px] font-medium uppercase tracking-wider text-plataformaSecundario">
-                Código de un solo uso
+        {paso === 'correo' ? (
+          <form onSubmit={manejarEnvioCorreo}>
+            <div className="mb-6">
+              <label className="text-etiqueta text-plataformaSecundario mb-2 block">
+                Correo Electrónico
               </label>
-              <span className={`text-[11px] font-mono px-2.5 py-0.5 rounded-full ${segundosRestantes < 60 ? 'bg-red-50 text-red-600 font-semibold' : 'bg-black/[0.04] text-plataformaSecundario'}`}>
-                {formatearTiempo(segundosRestantes)}
+              <div className="relative">
+                <Mail className="w-5 h-5 text-plataformaSecundario absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="email"
+                  value={correo}
+                  onChange={(e) => setCorreo(e.target.value)}
+                  className="campo-entrada campo-entrada-icono w-full"
+                  placeholder="ejemplo@empresa.com"
+                  autoFocus
+                />
+              </div>
+            </div>
+            <button 
+              type="submit" 
+              className="boton-primario w-full flex items-center justify-center gap-2"
+              disabled={cargando}
+            >
+              {cargando ? 'Enviando...' : 'Continuar'}
+              {!cargando && <ArrowRight className="w-4 h-4" />}
+            </button>
+          </form>
+        ) : (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <label className="text-etiqueta text-plataformaSecundario">
+                Código de seguridad
+              </label>
+              <span className={`px-2 py-0.5 text-xs font-mono font-medium rounded-full ${tiempoRestante < 60 ? 'insignia-peligro' : 'insignia-neutra'}`}>
+                {formatearTiempo(tiempoRestante)}
               </span>
             </div>
-
-            <div className="flex justify-between gap-2.5" onPaste={alPegarTexto}>
-              {casillasOtp.map((digito, indice) => (
+            
+            <div className="flex justify-between gap-2 mb-6" onPaste={manejarPegado}>
+              {codigo.map((digito, indice) => (
                 <input
                   key={indice}
-                  ref={(elemento) => (referenciasCasillas.current[indice] = elemento)}
+                  ref={(el) => (entradasRef.current[indice] = el)}
                   type="text"
-                  inputMode="numeric"
                   maxLength={1}
                   value={digito}
-                  onChange={(e) => alCambiarCasilla(indice, e.target.value)}
-                  onKeyDown={(e) => alPresionarTecla(indice, e)}
-                  className="w-12 h-14 text-center text-2xl font-semibold bg-black/[0.025] border border-black/[0.08] rounded-[16px] text-plataformaTexto focus:outline-none focus:bg-white focus:border-[#0071E3] focus:ring-4 focus:ring-[#0071E3]/15 transition-all duration-200 shadow-xs"
+                  onChange={(e) => manejarCambioCodigo(indice, e.target.value)}
+                  onKeyDown={(e) => manejarTeclaPresionada(indice, e)}
+                  className="w-11 h-14 text-center text-xl font-semibold bg-black/[0.025] border border-black/[0.08] rounded-md-token focus:bg-white focus:border-plataformaAzul focus:shadow-[0_0_0_3px_rgba(0,113,227,0.12)] transition-all duration-180"
+                  disabled={tiempoRestante === 0 || cargando}
                 />
               ))}
             </div>
-
-            <div className="mt-3 flex items-center justify-center text-xs">
-              <button
+            
+            <div className="flex justify-center mb-8">
+              <button 
                 type="button"
-                onClick={rellenarCodigoDemostracion}
-                className="text-plataformaAzul hover:underline text-[12px] font-medium transition-colors"
+                onClick={() => setCodigo(['1', '2', '3', '4', '5', '6'])}
+                className="text-subtexto text-plataformaAzul hover:underline cursor-pointer"
               >
-                Código generado: <span className="font-mono font-semibold tracking-wider">{codigoGenerado}</span>
+                Usar código de prueba (123456)
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <button 
+                onClick={manejarVerificacion}
+                className="boton-primario w-full"
+                disabled={cargando || tiempoRestante === 0}
+              >
+                {cargando ? 'Verificando...' : 'Verificar e Ingresar'}
+              </button>
+              
+              <button 
+                onClick={reeenviarCodigo}
+                className="boton-secundario w-full flex items-center justify-center gap-2"
+                disabled={cargando || tiempoRestante > 240}
+              >
+                <RefreshCw className="w-4 h-4" />
+                Reenviar código
               </button>
             </div>
           </div>
-
-          {mensajeError && (
-            <div className="p-3 bg-red-50/80 border border-red-200/60 rounded-[14px] flex items-center gap-2.5 text-xs text-red-700">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{mensajeError}</span>
-            </div>
-          )}
-
-          <div className="space-y-3 pt-2">
-            <button
-              type="submit"
-              disabled={cargando}
-              className="w-full py-3.5 boton-pildora-primario text-sm flex items-center justify-center gap-2 shadow-xs cursor-pointer"
-            >
-              <span>{cargando ? 'Validando...' : 'Validar código'}</span>
-              <ArrowRight className="w-4 h-4 stroke-[2]" />
-            </button>
-
-            <button
-              type="button"
-              onClick={reenviarCodigo}
-              className="w-full py-3 boton-pildora-secundario text-xs flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <RefreshCw className="w-3.5 h-3.5 stroke-[1.8]" />
-              <span>Reenviar código</span>
-            </button>
-          </div>
-
-          <p className="text-[11px] text-center text-plataformaSecundario leading-normal pt-1">
-            El código tiene una vigencia estricta de diez minutos y un solo uso.
-          </p>
-        </form>
-      </TarjetaBento>
+        )}
+        
+        <p className="text-subtexto text-plataformaSecundario text-center mt-4">
+          Sistema de acceso seguro con autenticación temporal
+        </p>
+      </div>
     </div>
   );
-}
+};
+
+export default AccesoOtp;

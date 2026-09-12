@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   X
 } from 'lucide-react';
-import TarjetaBento from '../../componentes/TarjetaBento.jsx';
 import { listaUnidadesNegocio, listaIndustrias } from '../../datos/datosIniciales.js';
 
 export default function ConfiguracionUnidadesIndustrias({ alRegistrarAuditoria }) {
@@ -70,124 +69,124 @@ export default function ConfiguracionUnidadesIndustrias({ alRegistrarAuditoria }
   return (
     <div className="space-y-6">
       {mensajeAviso && (
-        <div className="fixed top-20 right-6 z-50 bg-[#1D1D1F] text-white px-5 py-3 rounded-full text-xs font-medium shadow-elevada flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+        <div className="toast-notificacion fixed top-20 right-6 z-50 px-5 py-3 rounded-full text-xs font-medium flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4" />
           <span>{mensajeAviso}</span>
         </div>
       )}
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <span className="text-[11px] font-semibold uppercase tracking-widest text-plataformaSecundario block mb-1">
+          <span className="text-etiqueta text-plataformaSecundario block mb-1">
             Configuración Paramétrica (RF03)
           </span>
-          <h2 className="text-[26px] font-semibold tracking-[-0.03em] text-plataformaTexto leading-tight">
+          <h2 className="text-titulo-seccion">
             Unidades de Negocio e Industrias
           </h2>
-          <p className="text-[13px] text-plataformaSecundario mt-0.5">
+          <p className="text-cuerpo-pequeno text-plataformaSecundario mt-0.5">
             Mantenimiento del catálogo de las 7 divisiones minoristas y sectores industriales de Intercorp Retail.
           </p>
         </div>
+      </div>
 
-        <div className="flex items-center gap-2.5">
-          <div className="flex items-center bg-[#E5E5EA]/60 p-1 rounded-full backdrop-blur-md border border-black/[0.03]">
-            <button
-              onClick={() => setSubPestana('unidades')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                subPestana === 'unidades'
-                  ? 'bg-white text-plataformaTexto shadow-xs'
-                  : 'text-plataformaSecundario hover:text-plataformaTexto'
-              }`}
-            >
-              Unidades de Negocio (7)
-            </button>
-            <button
-              onClick={() => setSubPestana('industrias')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                subPestana === 'industrias'
-                  ? 'bg-white text-plataformaTexto shadow-xs'
-                  : 'text-plataformaSecundario hover:text-plataformaTexto'
-              }`}
-            >
-              Catálogo de Industrias ({industrias.length})
-            </button>
-          </div>
+      <div className="flex items-center justify-between border-b border-black/[0.06] mb-4">
+        <nav className="flex items-center gap-1 overflow-x-auto pb-1">
+          <button
+            onClick={() => setSubPestana('unidades')}
+            className={`px-4 py-2 text-cuerpo-pequeno font-medium transition-all cursor-pointer ${
+              subPestana === 'unidades'
+                ? 'border-b-2 border-plataformaAzul text-plataformaTexto'
+                : 'text-plataformaSecundario hover:text-plataformaTexto'
+            }`}
+          >
+            Unidades de Negocio (7)
+          </button>
+          <button
+            onClick={() => setSubPestana('industrias')}
+            className={`px-4 py-2 text-cuerpo-pequeno font-medium transition-all cursor-pointer ${
+              subPestana === 'industrias'
+                ? 'border-b-2 border-plataformaAzul text-plataformaTexto'
+                : 'text-plataformaSecundario hover:text-plataformaTexto'
+            }`}
+          >
+            Catálogo de Industrias ({industrias.length})
+          </button>
+        </nav>
 
-          {subPestana === 'industrias' && (
-            <button
-              onClick={() => setMostrarModalNuevaIndustria(true)}
-              className="px-4 py-2.5 boton-pildora-primario text-xs flex items-center gap-1.5 cursor-pointer shadow-xs"
-            >
-              <Plus className="w-3.5 h-3.5 stroke-[2]" />
-              <span>Nueva industria</span>
-            </button>
-          )}
-        </div>
+        {subPestana === 'industrias' && (
+          <button
+            onClick={() => setMostrarModalNuevaIndustria(true)}
+            className="boton-primario h-9 px-4 text-xs flex items-center gap-1.5"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Nueva industria</span>
+          </button>
+        )}
       </div>
 
       {subPestana === 'unidades' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {unidades.map((u) => (
-            <TarjetaBento key={u.id} clasePersonalizada="p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border-black/[0.05] flex flex-col justify-between">
+            <div key={u.id} className="superficie-tarjeta superficie-tarjeta-hover rounded-lg-token p-6 flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-9 h-9 rounded-[12px] bg-plataformaCorporativo text-white flex items-center justify-center font-bold text-xs">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-8 h-8 rounded-sm-token bg-plataformaCorporativo text-white flex items-center justify-center font-bold text-xs">
                     {u.nombre.slice(0, 2).toUpperCase()}
                   </div>
-                  <span className="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                  <span className="insignia-exito">
                     {u.estado}
                   </span>
                 </div>
 
-                <h4 className="text-base font-semibold text-plataformaTexto">
+                <h4 className="text-titulo-tarjeta">
                   {u.nombre}
                 </h4>
-                <p className="text-xs text-plataformaSecundario mt-1">
+                <p className="text-cuerpo-pequeno text-plataformaSecundario mt-1">
                   Gerente responsable: <span className="font-medium text-plataformaTexto">{u.gerente}</span>
                 </p>
               </div>
 
               <div className="pt-4 mt-4 border-t border-black/[0.04] flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] text-plataformaSecundario block">Meta de evaluados</span>
-                  <span className="font-mono text-sm font-bold text-[#0071E3]">{u.meta} proveedores</span>
+                  <span className="text-subtexto text-plataformaSecundario block">Meta de evaluados</span>
+                  <span className="text-etiqueta font-mono text-plataformaAzul font-semibold">{u.meta} proveedores</span>
                 </div>
                 <button
                   onClick={() => setUnidadEdicion(u)}
                   className="p-2 rounded-full hover:bg-black/[0.04] text-plataformaSecundario hover:text-plataformaTexto transition-colors cursor-pointer"
                 >
-                  <Edit2 className="w-4 h-4 stroke-[1.8]" />
+                  <Edit2 className="w-4 h-4" />
                 </button>
               </div>
-            </TarjetaBento>
+            </div>
           ))}
         </div>
       ) : (
-        <TarjetaBento clasePersonalizada="p-0 overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.04)]">
+        <div className="superficie-tarjeta rounded-lg-token overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
+            <table className="tabla-premium w-full text-left">
               <thead>
-                <tr className="bg-black/[0.02] border-b border-black/[0.05] text-[11px] font-semibold text-plataformaSecundario uppercase tracking-wider">
-                  <th className="py-3.5 px-6">Código</th>
-                  <th className="py-3.5 px-4">Sector / Industria</th>
-                  <th className="py-3.5 px-4 text-center">Ítems Asignados</th>
-                  <th className="py-3.5 px-4 text-center">Estado</th>
+                <tr>
+                  <th>Código</th>
+                  <th>Sector / Industria</th>
+                  <th className="text-center">Ítems Asignados</th>
+                  <th className="text-center">Estado</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-black/[0.04]">
+              <tbody>
                 {industrias.map((ind) => (
-                  <tr key={ind.id} className="hover:bg-black/[0.015]">
-                    <td className="py-4 px-6 font-mono font-bold text-[#0071E3]">
+                  <tr key={ind.id}>
+                    <td className="py-3.5 px-4 font-mono font-medium text-plataformaAzul">
                       {ind.codigo}
                     </td>
-                    <td className="py-4 px-4 font-semibold text-plataformaTexto">
+                    <td className="py-3.5 px-4 font-medium text-plataformaTexto">
                       {ind.nombre}
                     </td>
-                    <td className="py-4 px-4 text-center font-mono font-medium">
+                    <td className="py-3.5 px-4 text-center font-mono text-cuerpo-pequeno">
                       {ind.totalItems} preguntas
                     </td>
-                    <td className="py-4 px-4 text-center">
-                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-700 border border-emerald-500/20">
+                    <td className="py-3.5 px-4 text-center">
+                      <span className="insignia-exito">
                         {ind.estado}
                       </span>
                     </td>
@@ -196,65 +195,65 @@ export default function ConfiguracionUnidadesIndustrias({ alRegistrarAuditoria }
               </tbody>
             </table>
           </div>
-        </TarjetaBento>
+        </div>
       )}
 
       {unidadEdicion && (
-        <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4">
-          <form onSubmit={guardarEdicionUnidad} className="bg-white rounded-[28px] p-8 max-w-md w-full shadow-elevada border border-black/[0.06]">
+        <div className="overlay-modal flex items-center justify-center p-4">
+          <form onSubmit={guardarEdicionUnidad} className="contenido-modal max-w-md w-full p-8">
             <div className="flex items-start justify-between mb-5">
               <div>
-                <span className="text-[11px] font-semibold uppercase tracking-widest text-[#0071E3]">
+                <span className="text-etiqueta text-plataformaAzul block uppercase">
                   Configuración
                 </span>
-                <h3 className="text-lg font-bold tracking-tight text-plataformaTexto mt-1">
+                <h3 className="text-titulo-seccion mt-1">
                   Editar {unidadEdicion.nombre}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setUnidadEdicion(null)}
-                className="p-2 rounded-full hover:bg-black/[0.05] text-plataformaSecundario cursor-pointer"
+                className="p-2 rounded-full hover:bg-black/[0.04] text-plataformaSecundario cursor-pointer transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-3.5 mb-6">
+            <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-[11px] font-medium text-plataformaSecundario mb-1">Gerente de Sostenibilidad</label>
+                <label className="text-etiqueta text-plataformaSecundario block mb-1">Gerente de Sostenibilidad</label>
                 <input
                   type="text"
                   required
                   value={unidadEdicion.gerente}
                   onChange={(e) => setUnidadEdicion({ ...unidadEdicion, gerente: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-black/[0.025] border border-black/[0.06] rounded-[12px] text-xs"
+                  className="campo-entrada w-full"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium text-plataformaSecundario mb-1">Meta de Proveedores a Evaluar</label>
+                <label className="text-etiqueta text-plataformaSecundario block mb-1">Meta de Proveedores a Evaluar</label>
                 <input
                   type="number"
                   required
                   value={unidadEdicion.meta}
                   onChange={(e) => setUnidadEdicion({ ...unidadEdicion, meta: Number(e.target.value) })}
-                  className="w-full px-3.5 py-2.5 bg-black/[0.025] border border-black/[0.06] rounded-[12px] text-xs font-mono"
+                  className="campo-entrada w-full font-mono"
                 />
               </div>
             </div>
 
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setUnidadEdicion(null)}
-                className="px-4 py-2 boton-pildora-secundario text-xs cursor-pointer"
+                className="boton-secundario"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 boton-pildora-primario text-xs cursor-pointer"
+                className="boton-primario"
               >
                 Guardar cambios
               </button>
@@ -264,63 +263,63 @@ export default function ConfiguracionUnidadesIndustrias({ alRegistrarAuditoria }
       )}
 
       {mostrarModalNuevaIndustria && (
-        <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4">
-          <form onSubmit={agregarNuevaIndustria} className="bg-white rounded-[28px] p-8 max-w-md w-full shadow-elevada border border-black/[0.06]">
+        <div className="overlay-modal flex items-center justify-center p-4">
+          <form onSubmit={agregarNuevaIndustria} className="contenido-modal max-w-md w-full p-8">
             <div className="flex items-start justify-between mb-5">
               <div>
-                <span className="text-[11px] font-semibold uppercase tracking-widest text-[#0071E3]">
+                <span className="text-etiqueta text-plataformaAzul block uppercase">
                   Catálogo
                 </span>
-                <h3 className="text-lg font-bold tracking-tight text-plataformaTexto mt-1">
+                <h3 className="text-titulo-seccion mt-1">
                   Nueva Industria
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setMostrarModalNuevaIndustria(false)}
-                className="p-2 rounded-full hover:bg-black/[0.05] text-plataformaSecundario cursor-pointer"
+                className="p-2 rounded-full hover:bg-black/[0.04] text-plataformaSecundario cursor-pointer transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-3.5 mb-6">
+            <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-[11px] font-medium text-plataformaSecundario mb-1">Código de Sector</label>
+                <label className="text-etiqueta text-plataformaSecundario block mb-1">Código de Sector</label>
                 <input
                   type="text"
                   required
                   placeholder="ej. IND-ENER"
                   value={nuevoCodigoIndustria}
                   onChange={(e) => setNuevoCodigoIndustria(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-black/[0.025] border border-black/[0.06] rounded-[12px] text-xs font-mono"
+                  className="campo-entrada w-full font-mono"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium text-plataformaSecundario mb-1">Nombre de la Industria</label>
+                <label className="text-etiqueta text-plataformaSecundario block mb-1">Nombre de la Industria</label>
                 <input
                   type="text"
                   required
                   placeholder="ej. Energía, Petróleo y Minería"
                   value={nuevoNombreIndustria}
                   onChange={(e) => setNuevoNombreIndustria(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-black/[0.025] border border-black/[0.06] rounded-[12px] text-xs"
+                  className="campo-entrada w-full"
                 />
               </div>
             </div>
 
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setMostrarModalNuevaIndustria(false)}
-                className="px-4 py-2 boton-pildora-secundario text-xs cursor-pointer"
+                className="boton-secundario"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 boton-pildora-primario text-xs cursor-pointer"
+                className="boton-primario"
               >
                 Agregar industria
               </button>

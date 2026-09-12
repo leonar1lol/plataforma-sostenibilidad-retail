@@ -1,12 +1,17 @@
 import React from 'react';
 
-export default function TarjetaBento({ children, clasePersonalizada = '', alHacerClic }) {
+const TarjetaBento = ({ children, clasePersonalizada = '', alHacerClic }) => {
+  const claseBase = 'superficie-tarjeta rounded-lg-token p-6 transition-all duration-200 ease-out';
+  const claseInteractiva = alHacerClic ? 'superficie-tarjeta-hover cursor-pointer' : '';
+
   return (
     <div
+      className={`${claseBase} ${claseInteractiva} ${clasePersonalizada}`}
       onClick={alHacerClic}
-      className={`tarjeta-bento-superficie rounded-[28px] p-7 transition-all duration-300 ${clasePersonalizada}`}
     >
       {children}
     </div>
   );
-}
+};
+
+export default TarjetaBento;

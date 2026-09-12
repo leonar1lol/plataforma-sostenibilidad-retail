@@ -8,6 +8,13 @@ import ResultadoBento from './paginas/portal/ResultadoBento.jsx';
 import DashboardCorporativo from './paginas/admin/DashboardCorporativo.jsx';
 import InicioSesionCorporativo from './paginas/admin/InicioSesionCorporativo.jsx';
 
+const transicionPagina = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -4 },
+  transition: { duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }
+};
+
 export default function AplicacionPrincipal() {
   const [entornoActual, setEntornoActual] = useState('proveedor');
   const [pasoPortal, setPasoPortal] = useState('acceso_otp');
@@ -99,10 +106,7 @@ export default function AplicacionPrincipal() {
           {entornoActual === 'corporativo' ? (
             <motion.div
               key={sesionCorporativa ? 'dashboard' : 'login'}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              {...transicionPagina}
             >
               {sesionCorporativa ? (
                 <DashboardCorporativo />
@@ -113,10 +117,7 @@ export default function AplicacionPrincipal() {
           ) : (
             <motion.div
               key={pasoPortal}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              {...transicionPagina}
             >
               {pasoPortal === 'acceso_otp' && (
                 <AccesoOtp alCompletarAcceso={alCompletarAccesoOtp} />
@@ -145,23 +146,13 @@ export default function AplicacionPrincipal() {
         </AnimatePresence>
       </main>
 
-      <footer className="py-6 border-t border-black/[0.04] text-center text-xs text-plataformaSecundario flex flex-col items-center gap-1.5">
-        <span>Plataforma Centralizada de Evaluaciones de Sostenibilidad de Proveedores • Intercorp Retail 2026</span>
-        {entornoActual === 'proveedor' ? (
-          <button
-            onClick={() => setEntornoActual('corporativo')}
-            className="text-[11px] text-[#0071E3] hover:underline font-medium cursor-pointer"
-          >
-            ¿Es colaborador de Intercorp Retail? Ingrese a la consola corporativa aquí
-          </button>
-        ) : (
-          <button
-            onClick={() => setEntornoActual('proveedor')}
-            className="text-[11px] text-[#0071E3] hover:underline font-medium cursor-pointer"
-          >
-            Ir al Portal de Acceso de Proveedores
-          </button>
-        )}
+      <footer className="py-6 border-t border-black/[0.04] text-center">
+        <p className="text-subtexto text-plataformaSecundario">
+          Plataforma Centralizada de Evaluaciones de Sostenibilidad de Proveedores
+        </p>
+        <p className="text-subtexto text-plataformaSecundario mt-0.5">
+          Intercorp Retail — 2026
+        </p>
       </footer>
     </div>
   );

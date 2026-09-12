@@ -11,7 +11,6 @@ import {
   ToggleLeft,
   ToggleRight
 } from 'lucide-react';
-import TarjetaBento from '../../componentes/TarjetaBento.jsx';
 import { listaUsuariosCorporativos } from '../../datos/datosIniciales.js';
 
 export default function GestionUsuariosRoles({ alRegistrarAuditoria }) {
@@ -89,119 +88,117 @@ export default function GestionUsuariosRoles({ alRegistrarAuditoria }) {
   return (
     <div className="space-y-6">
       {mensajeExito && (
-        <div className="fixed top-20 right-6 z-50 bg-[#1D1D1F] text-white px-5 py-3 rounded-full text-xs font-medium shadow-elevada flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+        <div className="toast-notificacion fixed top-20 right-6 z-50 px-5 py-3 rounded-full text-xs font-medium flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4" />
           <span>{mensajeExito}</span>
         </div>
       )}
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <span className="text-[11px] font-semibold uppercase tracking-widest text-plataformaSecundario block mb-1">
+          <span className="text-etiqueta text-plataformaSecundario block mb-1">
             Módulo de Seguridad y Accesos (RF02)
           </span>
-          <h2 className="text-[26px] font-semibold tracking-[-0.03em] text-plataformaTexto leading-tight">
+          <h2 className="text-titulo-seccion">
             Gestión de Usuarios, Roles y Permisos
           </h2>
-          <p className="text-[13px] text-plataformaSecundario mt-0.5">
+          <p className="text-cuerpo-pequeno text-plataformaSecundario mt-0.5">
             Administración de cuentas corporativas y matriz de privilegios granulares.
           </p>
         </div>
+      </div>
 
-        <div className="flex items-center gap-2.5">
-          <div className="flex items-center bg-[#E5E5EA]/60 p-1 rounded-full backdrop-blur-md border border-black/[0.03]">
-            <button
-              onClick={() => setVistaInterna('usuarios')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                vistaInterna === 'usuarios'
-                  ? 'bg-white text-plataformaTexto shadow-xs'
-                  : 'text-plataformaSecundario hover:text-plataformaTexto'
-              }`}
-            >
-              Usuarios ({usuarios.length})
-            </button>
-            <button
-              onClick={() => setVistaInterna('permisos')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                vistaInterna === 'permisos'
-                  ? 'bg-white text-plataformaTexto shadow-xs'
-                  : 'text-plataformaSecundario hover:text-plataformaTexto'
-              }`}
-            >
-              Matriz de Permisos
-            </button>
-          </div>
+      <div className="flex items-center justify-between border-b border-black/[0.06] mb-4">
+        <nav className="flex items-center gap-1 overflow-x-auto pb-1">
+          <button
+            onClick={() => setVistaInterna('usuarios')}
+            className={`px-4 py-2 text-cuerpo-pequeno font-medium transition-all cursor-pointer ${
+              vistaInterna === 'usuarios'
+                ? 'border-b-2 border-plataformaAzul text-plataformaTexto'
+                : 'text-plataformaSecundario hover:text-plataformaTexto'
+            }`}
+          >
+            Usuarios ({usuarios.length})
+          </button>
+          <button
+            onClick={() => setVistaInterna('permisos')}
+            className={`px-4 py-2 text-cuerpo-pequeno font-medium transition-all cursor-pointer ${
+              vistaInterna === 'permisos'
+                ? 'border-b-2 border-plataformaAzul text-plataformaTexto'
+                : 'text-plataformaSecundario hover:text-plataformaTexto'
+            }`}
+          >
+            Matriz de Permisos
+          </button>
+        </nav>
 
-          {vistaInterna === 'usuarios' && (
-            <button
-              onClick={() => setMostrarModalNuevo(true)}
-              className="px-4 py-2.5 boton-pildora-primario text-xs flex items-center gap-1.5 cursor-pointer shadow-xs"
-            >
-              <UserPlus className="w-3.5 h-3.5 stroke-[2]" />
-              <span>Nuevo usuario</span>
-            </button>
-          )}
-        </div>
+        {vistaInterna === 'usuarios' && (
+          <button
+            onClick={() => setMostrarModalNuevo(true)}
+            className="boton-primario h-9 px-4 text-xs flex items-center gap-1.5"
+          >
+            <UserPlus className="w-3.5 h-3.5" />
+            <span>Nuevo usuario</span>
+          </button>
+        )}
       </div>
 
       {vistaInterna === 'usuarios' ? (
-        <TarjetaBento clasePersonalizada="p-0 overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.04)]">
+        <div className="superficie-tarjeta rounded-lg-token overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
+            <table className="tabla-premium w-full text-left">
               <thead>
-                <tr className="bg-black/[0.02] border-b border-black/[0.05] text-[11px] font-semibold text-plataformaSecundario uppercase tracking-wider">
-                  <th className="py-3.5 px-6">Usuario</th>
-                  <th className="py-3.5 px-4">Correo Corporativo</th>
-                  <th className="py-3.5 px-4">Rol Asignado</th>
-                  <th className="py-3.5 px-4">Unidad de Negocio</th>
-                  <th className="py-3.5 px-4 text-center">Estado</th>
-                  <th className="py-3.5 px-4">Último Acceso</th>
-                  <th className="py-3.5 px-6 text-right">Acción</th>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Correo Corporativo</th>
+                  <th>Rol Asignado</th>
+                  <th>Unidad de Negocio</th>
+                  <th className="text-center">Estado</th>
+                  <th>Último Acceso</th>
+                  <th className="text-right">Acción</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-black/[0.04]">
+              <tbody>
                 {usuarios.map((u) => (
-                  <tr key={u.id} className="hover:bg-black/[0.015] transition-colors">
-                    <td className="py-4 px-6 font-semibold text-plataformaTexto">
+                  <tr key={u.id}>
+                    <td className="py-3.5 px-4 font-medium text-plataformaTexto">
                       {u.nombre}
                     </td>
-                    <td className="py-4 px-4 font-mono text-plataformaSecundario">
+                    <td className="py-3.5 px-4 font-mono text-cuerpo-pequeno text-plataformaSecundario">
                       {u.correo}
                     </td>
-                    <td className="py-4 px-4">
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${
+                    <td className="py-3.5 px-4">
+                      <span className={`inline-flex items-center gap-1 ${
                         u.rol === 'Administrador Corporativo'
-                          ? 'bg-purple-500/10 text-purple-700 border-purple-500/20 font-semibold'
-                          : u.rol === 'Gestor Unidad Negocio'
-                          ? 'bg-blue-500/10 text-[#0071E3] border-blue-500/20'
-                          : 'bg-black/[0.04] text-plataformaSecundario border-black/[0.06]'
+                          ? 'insignia-info'
+                          : 'insignia-neutra'
                       }`}>
                         <Shield className="w-3 h-3" />
                         {u.rol}
                       </span>
                     </td>
-                    <td className="py-4 px-4 text-plataformaTexto">
+                    <td className="py-3.5 px-4 text-cuerpo-pequeno text-plataformaTexto">
                       {u.unidad}
                     </td>
-                    <td className="py-4 px-4 text-center">
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${
+                    <td className="py-3.5 px-4 text-center">
+                      <span className={`inline-flex items-center gap-1 ${
                         u.estado === 'Activo'
-                          ? 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20'
-                          : 'bg-red-500/10 text-red-600 border-red-500/20'
+                          ? 'insignia-exito'
+                          : 'insignia-peligro'
                       }`}>
                         {u.estado}
                       </span>
                     </td>
-                    <td className="py-4 px-4 font-mono text-plataformaSecundario text-[11px]">
+                    <td className="py-3.5 px-4 font-mono text-plataformaSecundario text-subtexto">
                       {u.ultimoAcceso}
                     </td>
-                    <td className="py-4 px-6 text-right">
+                    <td className="py-3.5 px-4 text-right">
                       <button
                         onClick={() => alternarEstadoUsuario(u.id)}
-                        className={`text-[11px] font-medium px-3 py-1 rounded-full border transition-all cursor-pointer ${
+                        className={`text-subtexto font-medium px-3 py-1 rounded-full transition-all cursor-pointer ${
                           u.estado === 'Activo'
-                            ? 'bg-red-50 hover:bg-red-100 text-red-600 border-red-200'
-                            : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200'
+                            ? 'bg-red-50 hover:bg-red-100 text-red-600'
+                            : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700'
                         }`}
                       >
                         {u.estado === 'Activo' ? 'Desactivar' : 'Activar'}
@@ -212,30 +209,30 @@ export default function GestionUsuariosRoles({ alRegistrarAuditoria }) {
               </tbody>
             </table>
           </div>
-        </TarjetaBento>
+        </div>
       ) : (
-        <TarjetaBento clasePersonalizada="p-8 shadow-[0_8px_32px_rgba(0,0,0,0.04)]">
-          <h3 className="text-base font-semibold text-plataformaTexto mb-1">
+        <div className="superficie-tarjeta rounded-lg-token p-6">
+          <h3 className="text-titulo-tarjeta mb-1">
             Matriz de Privilegios Granulares por Perfil
           </h3>
-          <p className="text-xs text-plataformaSecundario mb-6">
+          <p className="text-cuerpo-pequeno text-plataformaSecundario mb-6">
             Definición de control de acceso basada en roles (RBAC) conforme a la directiva de seguridad corporativa.
           </p>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
+            <table className="tabla-premium w-full text-left">
               <thead>
-                <tr className="bg-black/[0.02] border-b border-black/[0.05] text-[11px] font-semibold text-plataformaSecundario uppercase tracking-wider">
-                  <th className="py-3 px-4">Función / Módulo del Sistema</th>
-                  <th className="py-3 px-4 text-center">Administrador Corporativo</th>
-                  <th className="py-3 px-4 text-center">Gestor Unidad de Negocio</th>
-                  <th className="py-3 px-4 text-center">Auditor de Sostenibilidad</th>
+                <tr>
+                  <th>Función / Módulo del Sistema</th>
+                  <th className="text-center">Administrador Corporativo</th>
+                  <th className="text-center">Gestor Unidad de Negocio</th>
+                  <th className="text-center">Auditor de Sostenibilidad</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-black/[0.04]">
+              <tbody>
                 {matrizPermisos.map((permiso, idx) => (
-                  <tr key={idx} className="hover:bg-black/[0.015]">
-                    <td className="py-3.5 px-4 font-medium text-plataformaTexto">
+                  <tr key={idx}>
+                    <td className="py-3.5 px-4 text-cuerpo-pequeno font-medium text-plataformaTexto">
                       {permiso.funcion}
                     </td>
                     <td className="py-3.5 px-4 text-center">
@@ -264,61 +261,61 @@ export default function GestionUsuariosRoles({ alRegistrarAuditoria }) {
               </tbody>
             </table>
           </div>
-        </TarjetaBento>
+        </div>
       )}
 
       {mostrarModalNuevo && (
-        <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4">
-          <form onSubmit={agregarUsuario} className="bg-white rounded-[28px] p-8 max-w-md w-full shadow-elevada border border-black/[0.06]">
+        <div className="overlay-modal flex items-center justify-center p-4">
+          <form onSubmit={agregarUsuario} className="contenido-modal max-w-md w-full p-8">
             <div className="flex items-start justify-between mb-5">
               <div>
-                <span className="text-[11px] font-semibold uppercase tracking-widest text-[#0071E3]">
+                <span className="text-etiqueta text-plataformaAzul block uppercase">
                   Seguridad
                 </span>
-                <h3 className="text-lg font-bold tracking-tight text-plataformaTexto mt-1">
+                <h3 className="text-titulo-seccion mt-1">
                   Registrar Colaborador Interno
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setMostrarModalNuevo(false)}
-                className="p-2 rounded-full hover:bg-black/[0.05] text-plataformaSecundario cursor-pointer"
+                className="p-2 rounded-full hover:bg-black/[0.04] text-plataformaSecundario cursor-pointer transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-3.5 mb-6">
+            <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-[11px] font-medium text-plataformaSecundario mb-1">Nombre completo</label>
+                <label className="text-etiqueta text-plataformaSecundario block mb-1">Nombre completo</label>
                 <input
                   type="text"
                   required
                   value={nuevoNombre}
                   onChange={(e) => setNuevoNombre(e.target.value)}
                   placeholder="ej. Ana Belén Flores"
-                  className="w-full px-3.5 py-2.5 bg-black/[0.025] border border-black/[0.06] rounded-[12px] text-xs"
+                  className="campo-entrada w-full"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium text-plataformaSecundario mb-1">Correo corporativo (@intercorpretail.pe)</label>
+                <label className="text-etiqueta text-plataformaSecundario block mb-1">Correo corporativo (@intercorpretail.pe)</label>
                 <input
                   type="email"
                   required
                   value={nuevoCorreo}
                   onChange={(e) => setNuevoCorreo(e.target.value)}
                   placeholder="aflores@intercorpretail.pe"
-                  className="w-full px-3.5 py-2.5 bg-black/[0.025] border border-black/[0.06] rounded-[12px] text-xs font-mono"
+                  className="campo-entrada w-full font-mono"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium text-plataformaSecundario mb-1">Rol de seguridad</label>
+                <label className="text-etiqueta text-plataformaSecundario block mb-1">Rol de seguridad</label>
                 <select
                   value={nuevoRol}
                   onChange={(e) => setNuevoRol(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-black/[0.025] border border-black/[0.06] rounded-[12px] text-xs"
+                  className="campo-select w-full"
                 >
                   <option value="Administrador Corporativo">Administrador Corporativo</option>
                   <option value="Gestor Unidad Negocio">Gestor Unidad Negocio</option>
@@ -328,11 +325,11 @@ export default function GestionUsuariosRoles({ alRegistrarAuditoria }) {
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium text-plataformaSecundario mb-1">Unidad de Negocio asignada</label>
+                <label className="text-etiqueta text-plataformaSecundario block mb-1">Unidad de Negocio asignada</label>
                 <select
                   value={nuevaUnidad}
                   onChange={(e) => setNuevaUnidad(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-black/[0.025] border border-black/[0.06] rounded-[12px] text-xs"
+                  className="campo-select w-full"
                 >
                   <option value="Corporativo Central">Corporativo Central</option>
                   <option value="Supermercados Peruanos">Supermercados Peruanos</option>
@@ -346,17 +343,17 @@ export default function GestionUsuariosRoles({ alRegistrarAuditoria }) {
               </div>
             </div>
 
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setMostrarModalNuevo(false)}
-                className="px-4 py-2 boton-pildora-secundario text-xs cursor-pointer"
+                className="boton-secundario"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 boton-pildora-primario text-xs cursor-pointer"
+                className="boton-primario"
               >
                 Crear usuario
               </button>
