@@ -265,7 +265,7 @@ export default function GestionUsuariosRoles({ alRegistrarAuditoria }) {
       )}
 
       {mostrarModalNuevo && (
-        <div className="overlay-modal flex items-center justify-center p-4">
+        <div className="overlay-modal !m-0 flex items-center justify-center p-4">
           <form onSubmit={agregarUsuario} className="contenido-modal max-w-md w-full p-8">
             <div className="flex items-start justify-between mb-5">
               <div>

@@ -199,7 +199,7 @@ export default function ConfiguracionUnidadesIndustrias({ alRegistrarAuditoria }
       )}
 
       {unidadEdicion && (
-        <div className="overlay-modal flex items-center justify-center p-4">
+        <div className="overlay-modal !m-0 flex items-center justify-center p-4">
           <form onSubmit={guardarEdicionUnidad} className="contenido-modal max-w-md w-full p-8">
             <div className="flex items-start justify-between mb-5">
               <div>
@@ -263,7 +263,7 @@ export default function ConfiguracionUnidadesIndustrias({ alRegistrarAuditoria }
       )}
 
       {mostrarModalNuevaIndustria && (
-        <div className="overlay-modal flex items-center justify-center p-4">
+        <div className="overlay-modal !m-0 flex items-center justify-center p-4">
           <form onSubmit={agregarNuevaIndustria} className="contenido-modal max-w-md w-full p-8">
             <div className="flex items-start justify-between mb-5">
               <div>

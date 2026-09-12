@@ -296,7 +296,7 @@ export default function GestionProveedores({ proveedores, alActualizarProveedore
       </div>
 
       {proveedorSeleccionado && (
-        <div className="overlay-modal flex items-center justify-center p-4">
+        <div className="overlay-modal !m-0 flex items-center justify-center p-4">
           <div className="contenido-modal max-w-lg w-full p-8">
             <div className="flex items-start justify-between mb-5">
               <div>
@@ -378,7 +378,7 @@ export default function GestionProveedores({ proveedores, alActualizarProveedore
       )}
 
       {mostrarModalNuevo && (
-        <div className="overlay-modal flex items-center justify-center p-4">
+        <div className="overlay-modal !m-0 flex items-center justify-center p-4">
           <form onSubmit={registrarNuevoProveedor} className="contenido-modal max-w-md w-full p-8">
             <div className="flex items-start justify-between mb-5">
               <div>

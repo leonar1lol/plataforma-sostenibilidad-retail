@@ -153,7 +153,7 @@ export default function BancoPreguntas({ catalogoItems, alActualizarCatalogo }) 
       </div>
 
       {mostrarModalNuevo && (
-        <div className="overlay-modal flex items-center justify-center p-4">
+        <div className="overlay-modal !m-0 flex items-center justify-center p-4">
           <form onSubmit={agregarNuevoItem} className="contenido-modal max-w-lg w-full p-8">
             <div className="flex items-start justify-between mb-5">
               <div>
