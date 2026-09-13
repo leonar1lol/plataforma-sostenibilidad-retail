@@ -24,7 +24,6 @@ export default {
       fontFamily: {
         sans: [
           '"Inter"',
-          '-apple-system',
           'BlinkMacSystemFont',
           '"SF Pro Display"',
           '"SF Pro Text"',
